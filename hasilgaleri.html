@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Galeri Foto & Video</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+      }
+      h1 {
+        text-align: center;
+      }
+      input[type="file"] {
+        display: block;
+        margin: 10px auto;
+      }
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .item {
+        background: white;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      img,
+      video {
+        max-width: 100%;
+        border-radius: 5px;
+      }
+      button {
+        margin-top: 8px;
+        padding: 5px 10px;
+        background: red;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      /* Styling tombol upload */
+  #customUploadBtn {
+    display: block;
+    margin: 20px auto; /* Biar di tengah */
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  #customUploadBtn:hover {
+    background-color: #45a049;
+  }
+    </style>
+  </head>
+  <body>
+    <h1>Galeri Foto & Video</h1>
+    <input type="file" id="fileInput" style="display:none" accept="image/*,video/*">
+    <button id="customUploadBtn">Upload Foto/Video</button>
+    <div class="gallery" id="gallery"></div>
+
+    <script>
+      const fileInput = document.getElementById("fileInput");
+      const customUploadBtn =document.getElementById("customUploadBtn")
+      const gallery = document.getElementById("gallery");
+      customUploadBtn.addEventListener("click", () => {
+  fileInput.click();
+});
+
+      // Ambil data dari localStorage saat pertama kali load
+      let savedFiles = JSON.parse(localStorage.getItem("galleryFiles")) || [];
+
+      // Fungsi render ulang galeri
+      function renderGallery() {
+        gallery.innerHTML = "";
+        savedFiles.forEach((file, index) => {
+          const div = document.createElement("div");
+          div.classList.add("item");
+
+          if (file.type.startsWith("image/")) {
+            const img = document.createElement("img");
+            img.src = file.data;
+            div.appendChild(img);
+          } else if (file.type.startsWith("video/")) {
+            const video = document.createElement("video");
+            video.src = file.data;
+            video.controls = true;
+            div.appendChild(video);
+          }
+
+          const btn = document.createElement("button");
+          btn.textContent = "Hapus";
+          btn.onclick = () => {
+            savedFiles.splice(index, 1);
+            localStorage.setItem("galleryFiles", JSON.stringify(savedFiles));
+            renderGallery();
+          };
+          div.appendChild(btn);
+
+          gallery.appendChild(div);
+        });
+      }
+
+      // Fungsi untuk menambah file ke galeri
+      fileInput.addEventListener("change", () => {
+        const files = Array.from(fileInput.files);
+        files.forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            savedFiles.push({
+              data: e.target.result, // Base64 data
+              type: file.type,
+            });
+            localStorage.setItem("galleryFiles", JSON.stringify(savedFiles));
+            renderGallery();
+          };
+          reader.readAsDataURL(file);
+        });
+        fileInput.value = "";
+      });
+
+      // Tampilkan galeri pertama kali
+      renderGallery();
+    </script>
+  </body>
+</html>

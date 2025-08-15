@@ -95,6 +95,9 @@
             <a href="#about"><i class="bi bi-person navicon"></i> About</a>
           </li>
           <li>
+            <a href="hasilgaleri.html" target=""> <i class=" bi-person navicon "> Galeri</i></a>
+          </li>
+          <li>
             <a href="#resume"
               ><i class="bi bi-file-earmark-text navicon"></i> Resume</a
             >
@@ -190,6 +193,73 @@
           </p>
         </div>
         <!-- End Section Title -->
+
+        <h1>Galeri Foto & Video</h1>
+    <input type="file" id="fileInput" accept="image/*,video/*" multiple hidden>
+    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">📤 Upload Foto/Video</button>
+
+    <div class="gallery" id="gallery"></div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const gallery = document.getElementById('gallery');
+
+        // Load data dari localStorage saat halaman dibuka
+        window.onload = function () {
+            const savedItems = JSON.parse(localStorage.getItem('galleryData')) || [];
+            savedItems.forEach(data => addToGallery(data.url, data.type, false));
+        };
+
+        // Event saat file diupload
+        fileInput.addEventListener('change', function () {
+            const files = Array.from(fileInput.files);
+            files.forEach(file => {
+                const fileURL = URL.createObjectURL(file);
+                addToGallery(fileURL, file.type, true);
+            });
+            fileInput.value = '';
+        });
+
+        // Fungsi untuk menambah item ke galeri
+        function addToGallery(url, type, showSaveButton) {
+            const galleryItem = document.createElement('div');
+            galleryItem.classList.add('gallery-item');
+
+            let mediaElement;
+            if (type.startsWith('image/')) {
+                mediaElement = document.createElement('img');
+                mediaElement.src = url;
+            } else if (type.startsWith('video/')) {
+                mediaElement = document.createElement('video');
+                mediaElement.src = url;
+                mediaElement.controls = true;
+            }
+            galleryItem.appendChild(mediaElement);
+
+            if (showSaveButton) {
+                const saveBtn = document.createElement('button');
+                saveBtn.classList.add('save-btn');
+                saveBtn.textContent = '💾 Simpan';
+                saveBtn.onclick = function () {
+                    saveToLocal(url, type);
+                    saveBtn.textContent = '✔ Tersimpan';
+                    saveBtn.disabled = true;
+                };
+                galleryItem.appendChild(saveBtn);
+            }
+
+            gallery.appendChild(galleryItem);
+        }
+
+        // Fungsi simpan ke localStorage
+        function saveToLocal(url, type) {
+            const savedItems = JSON.parse(localStorage.getItem('galleryData')) || [];
+            savedItems.push({ url, type });
+            localStorage.setItem('galleryData', JSON.stringify(savedItems));
+        }
+    </script>
+
+    <!-- penanda selesai -->
 
         <div class="container" data-aos="fade-up" data-aos-delay="100">
           <div class="row gy-4 justify-content-center">
@@ -1190,6 +1260,7 @@
                   }
                 }
               }
+              
             </script>
             <div class="swiper-wrapper">
               <div class="swiper-slide">
@@ -1482,6 +1553,13 @@
 
     <!-- Preloader -->
     <div id="preloader"></div>
+
+    <script>
+// Matikan klik kanan di seluruh halaman
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
+</script>
 
     <!-- Vendor JS Files -->
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
